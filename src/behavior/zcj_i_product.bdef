@@ -1,0 +1,61 @@
+managed implementation in class zbp_cj_i_product unique;
+strict ( 2 );
+with draft;
+
+define behavior for ZCJ_I_PRODUCT alias Product
+persistent table zcj_product
+draft table zcj_product_d
+lock master
+total etag LastChangedAt
+authorization master ( none )
+{
+  create;
+  update;
+  delete;
+
+  determination setCreationData on modify { create; }
+
+  validation validateProduct on save { create; update; }
+
+  draft action Edit;
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Resume;
+
+  draft determine action Prepare
+  {
+    validation validateProduct;
+  }
+
+  action ( features : instance ) submitForApproval result [1] $self;
+  action ( features : instance ) approve result [1] $self;
+  action ( features : instance ) reject result [1] $self;
+
+  field ( readonly )
+    CreatedAt,
+    CreatedBy,
+    LastChangedAt,
+    ApprovedAt,
+    Status,
+    SubmittedAt,
+    ApprovedBy;
+
+  mapping for zcj_product
+  {
+    ProductId       = product_id;
+    ProductName     = product_name;
+    Description     = description;
+    Category        = category;
+    Price            = price;
+    Currency         = currency;
+    Stock            = stock;
+    Status           = status;
+    RejectionReason  = rejection_reason;
+    CreatedBy        = created_by;
+    CreatedAt        = created_at;
+    SubmittedAt      = submitted_at;
+    ApprovedBy       = approved_by;
+    ApprovedAt       = approved_at;
+    LastChangedAt    = last_changed_at;
+  }
+}

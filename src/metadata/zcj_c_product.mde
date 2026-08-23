@@ -1,0 +1,217 @@
+@Metadata.layer: #CORE
+
+annotate entity ZCJ_C_PRODUCT
+  with
+{
+  @UI.facet: [
+    {
+      id: 'ProductInformation',
+      type: #IDENTIFICATION_REFERENCE,
+      label: 'Product Information',
+      position: 10
+    }
+  ]
+
+  @UI.lineItem: [
+    {
+      position: 10,
+      label: 'Product ID'
+    }
+  ]
+
+  @UI.selectionField: [
+    {
+      position: 10
+    }
+  ]
+
+  @UI.identification: [
+    {
+      position: 10,
+      label: 'Product ID'
+    },
+    {
+      position: 1,
+      type: #FOR_ACTION,
+      dataAction: 'submitForApproval',
+      label: 'Submit for Approval'
+    },
+    {
+      position: 2,
+      type: #FOR_ACTION,
+      dataAction: 'approve',
+      label: 'Approve'
+    },
+    {
+      position: 3,
+      type: #FOR_ACTION,
+      dataAction: 'reject',
+      label: 'Reject'
+    }
+  ]
+  ProductId;
+
+  @UI.lineItem: [
+    {
+      position: 20,
+      label: 'Product Name'
+    }
+  ]
+
+  @UI.selectionField: [
+    {
+      position: 20
+    }
+  ]
+
+  @UI.identification: [
+    {
+      position: 20,
+      label: 'Product Name'
+    }
+  ]
+  ProductName;
+
+  @UI.lineItem: [
+    {
+      position: 30,
+      label: 'Category'
+    }
+  ]
+
+  @UI.selectionField: [
+    {
+      position: 30
+    }
+  ]
+
+  @UI.identification: [
+    {
+      position: 30,
+      label: 'Category'
+    }
+  ]
+  Category;
+
+  @UI.lineItem: [
+    {
+      position: 40,
+      label: 'Price'
+    }
+  ]
+
+  @UI.identification: [
+    {
+      position: 40,
+      label: 'Price'
+    }
+  ]
+  Price;
+
+  @UI.lineItem: [
+    {
+      position: 50,
+      label: 'Currency'
+    }
+  ]
+
+  @UI.identification: [
+    {
+      position: 50,
+      label: 'Currency'
+    }
+  ]
+  Currency;
+
+  @UI.lineItem: [
+    {
+      position: 60,
+      label: 'Stock'
+    }
+  ]
+
+  @UI.identification: [
+    {
+      position: 60,
+      label: 'Stock'
+    }
+  ]
+  Stock;
+
+  @UI.lineItem: [
+    {
+      position: 70,
+      label: 'Status'
+    }
+  ]
+
+  @UI.selectionField: [
+    {
+      position: 40
+    }
+  ]
+
+  @UI.identification: [
+    {
+      position: 70,
+      label: 'Status'
+    }
+  ]
+  Status;
+
+  @UI.identification: [
+    {
+      position: 80,
+      label: 'Description'
+    }
+  ]
+  Description;
+
+  @UI.identification: [
+    {
+      position: 90,
+      label: 'Rejection Reason'
+    }
+  ]
+  RejectionReason;
+
+  @UI.identification: [
+    {
+      position: 100,
+      label: 'Created By'
+    }
+  ]
+  CreatedBy;
+
+  @UI.identification: [
+    {
+      position: 110,
+      label: 'Created At'
+    }
+  ]
+  CreatedAt;
+
+  @UI.identification: [
+    {
+      position: 120,
+      label: 'Submitted At'
+    }
+  ]
+  SubmittedAt;
+
+  @UI.identification: [
+    {
+      position: 130,
+      label: 'Approved By'
+    }
+  ]
+  ApprovedBy;
+
+  @UI.identification: [
+    {
+      position: 140,
+      label: 'Approved At'
+    }
+  ]
+  ApprovedAt;
+}

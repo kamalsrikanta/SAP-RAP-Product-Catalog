@@ -1,0 +1,5 @@
+@EndUserText.label: 'Product Catalog Service Definition'
+
+define service ZCJ_PRODUCT_SRV {
+  expose ZCJ_C_PRODUCT as Product;
+}
