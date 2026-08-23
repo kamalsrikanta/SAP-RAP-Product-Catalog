@@ -498,23 +498,4 @@ GitHub:
 https://github.com/kamalsrikanta/SAP-RAP-Product-Catalog
 
 
-### Why I prefer this version
 
-Your original README was already good technically, but this one makes the project easier to understand at **three different levels**:
-
-**Recruiter:** immediately sees what the project does.
-
-**SAP interviewer:** can quickly find RAP concepts, architecture, behavior, EML, draft, actions, validations, and feature control.
-
-**Developer:** can navigate directly to the source structure and screenshots.
-
-One particularly important improvement is the **status/action matrix**. It makes your `get_instance_features` implementation immediately understandable without forcing the reader to inspect ABAP code.
-
-Also, I deliberately changed **"Project Status: Completed"** to **"Completed — Functional Prototype"**. That's more professional because your README already identifies authorization and other items as future enhancements, so it doesn't imply that this is a production-ready enterprise application.
-
-**I would replace your current README with this version and then commit it as a separate Git commit**, e.g.:
-
-```bash
-git add README.md
-git commit -m "Improve project documentation"
-git push
