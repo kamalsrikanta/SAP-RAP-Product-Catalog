@@ -1,14 +1,37 @@
-SAP RAP Product Catalog & Approval Workflow
+# SAP RAP Product Catalog & Approval Workflow
 
-A transactional **SAP ABAP RESTful Application Programming Model (RAP)** application for managing products through a **SAP Fiori Elements** user interface.
+A transactional **SAP ABAP RESTful Application Programming Model (RAP)** application for managing products through a **SAP Fiori Elements** UI — built to demonstrate a full product lifecycle: managed draft handling, business validations, determinations, and a status-driven approval workflow (Submit → Approve/Reject).
 
-The application implements a complete product lifecycle with **managed RAP, draft handling, business validations, automatic creation data, and a status-driven approval workflow** using Submit, Approve, and Reject actions.
+![Status](https://img.shields.io/badge/status-completed%20prototype-brightgreen)
+![ABAP](https://img.shields.io/badge/SAP-ABAP%20RAP-blue)
+![OData](https://img.shields.io/badge/OData-V4-orange)
+
+---
+
+## 📑 Table of Contents
+
+- [Overview](#-project-overview)
+- [Skills Demonstrated](#-skills-demonstrated)
+- [Key Features](#-key-features)
+- [Business Workflow](#-business-workflow)
+- [Architecture](#️-rap-architecture)
+- [RAP Objects](#-rap-objects)
+- [Data Model](#-product-data-model)
+- [Business Logic](#-business-logic)
+- [Instance Feature Control](#️-instance-feature-control)
+- [Fiori Elements UI](#️-fiori-elements-ui)
+- [Screenshots](#-screenshots)
+- [How to Explore This Project](#-how-to-explore-this-project)
+- [Repository Structure](#️-repository-structure)
+- [Authorization](#-authorization)
+- [Future Enhancements](#-future-enhancements)
+- [Project Status](#-project-status)
 
 ---
 
 ## 📌 Project Overview
 
-The Product Catalog application was developed to demonstrate how a transactional business application can be built using the **SAP RAP programming model**.
+This project shows how a real-world transactional business application can be built end-to-end on the **SAP RAP programming model**, from database tables to a working Fiori Elements UI.
 
 The application allows users to:
 
@@ -16,11 +39,23 @@ The application allows users to:
 - Work with products in draft mode
 - Validate product data before saving
 - Submit products for approval
-- Approve submitted products
-- Reject products with a mandatory rejection reason
-- Control available actions based on product status
-- Track creation, submission, and approval information
-- Access the application through a Fiori Elements UI exposed using OData V4
+- Approve or reject submitted products (with mandatory rejection reason)
+- Have available actions automatically adapt to the product's current status
+- Track full audit information — who created, submitted, and approved each record
+- Access everything through a Fiori Elements List Report / Object Page, exposed via OData V4
+
+---
+
+## 🧠 Skills Demonstrated
+
+| Area | What's shown |
+|---|---|
+| **Data modeling** | CDS root/projection views, persistence tables, draft tables |
+| **RAP behavior** | Behavior Definition, Behavior Projection, Behavior Implementation (ABAP) |
+| **Business logic** | Determinations, validations, custom actions, EML (`READ ENTITIES` / `MODIFY ENTITIES`) |
+| **Workflow design** | Status-driven state machine with instance feature control |
+| **UI** | Fiori Elements (List Report + Object Page), CDS metadata extensions |
+| **Service exposure** | OData V4 service definition + service binding |
 
 ---
 
@@ -34,24 +69,20 @@ The application allows users to:
 | Creation Determination | Automatically sets creator, creation timestamp, and initial status |
 | Submit for Approval | Moves eligible products to `SUBMITTED` |
 | Approval | Moves submitted products to `APPROVED` |
-| Rejection | Moves submitted products to `REJECTED` |
-| Rejection Validation | Requires a rejection reason |
+| Rejection | Moves submitted products to `REJECTED`, with mandatory reason |
 | Instance Feature Control | Enables/disables actions based on product status |
 | Audit Information | Tracks creation, submission, and approval details |
-| Fiori Elements | Provides List Report and Object Page UI |
+| Fiori Elements | List Report and Object Page UI |
 | OData V4 | Exposes the transactional application as a UI service |
 
 ---
 
-# 🔄 Business Workflow
-
-The application implements the following product approval lifecycle:
+## 🔄 Business Workflow
 
 ```text
                          ┌─────────────┐
                          │     NEW     │
                          └──────┬──────┘
-                                │
                                 │ Submit for Approval
                                 ▼
                          ┌─────────────┐
@@ -59,308 +90,189 @@ The application implements the following product approval lifecycle:
                          └──────┬──────┘
                                 │
                      ┌──────────┴──────────┐
-                     │                     │
                   Approve                Reject
                      │                     │
                      ▼                     ▼
               ┌─────────────┐      ┌─────────────┐
               │  APPROVED   │      │  REJECTED   │
               └─────────────┘      └──────┬──────┘
-                                           │
                                            │ Submit again
                                            ▼
                                     ┌─────────────┐
                                     │  SUBMITTED  │
                                     └─────────────┘
-Status-Based Actions
-Product Status	Submit	Approve	Reject
-NEW	✅	❌	❌
-SUBMITTED	❌	✅	✅
-REJECTED	✅	❌	❌
-APPROVED	❌	❌	❌
+```
 
-Action availability is controlled through RAP instance feature control.
+### Status-Based Actions
 
-🏗️ RAP Architecture
+| Product Status | Submit | Approve | Reject |
+|---|:---:|:---:|:---:|
+| `NEW` | ✅ | ❌ | ❌ |
+| `SUBMITTED` | ❌ | ✅ | ✅ |
+| `REJECTED` | ✅ | ❌ | ❌ |
+| `APPROVED` | ❌ | ❌ | ❌ |
+
+Action availability is controlled through RAP **instance feature control**.
+
+---
+
+## 🏗️ RAP Architecture
+
+```text
 ┌─────────────────────────────────────┐
 │         SAP Fiori Elements          │
 │      List Report / Object Page      │
 └──────────────────┬──────────────────┘
-                   │
-                   ▼
+                    ▼
 ┌─────────────────────────────────────┐
 │       OData V4 UI Service Binding   │
 │           ZCJ_PRODUCT_UI             │
 └──────────────────┬──────────────────┘
-                   │
-                   ▼
+                    ▼
 ┌─────────────────────────────────────┐
 │          Service Definition         │
 │           ZCJ_PRODUCT_SRV            │
 └──────────────────┬──────────────────┘
-                   │
-                   ▼
+                    ▼
 ┌─────────────────────────────────────┐
 │       Consumption / Projection      │
 │           ZCJ_C_PRODUCT              │
 └──────────────────┬──────────────────┘
-                   │
-                   ▼
+                    ▼
 ┌─────────────────────────────────────┐
 │          Interface CDS View         │
 │           ZCJ_I_PRODUCT              │
 └──────────────────┬──────────────────┘
-                   │
-                   ▼
+                    ▼
 ┌─────────────────────────────────────┐
 │          RAP Behavior Layer         │
-│                                     │
-│  Behavior Definition                │
-│  Behavior Projection                │
-│  Behavior Implementation            │
-│  Determination                      │
-│  Validation                         │
-│  Custom Actions                     │
-│  Instance Feature Control           │
+│  Behavior Definition / Projection    │
+│  Behavior Implementation             │
+│  Determination · Validation          │
+│  Custom Actions · Feature Control    │
 └──────────────────┬──────────────────┘
-                   │
-                   ▼
+                    ▼
 ┌─────────────────────────────────────┐
 │          Persistence Layer          │
-│                                     │
-│           ZCJ_PRODUCT               │
-│           ZCJ_PRODUCT_D             │
+│      ZCJ_PRODUCT · ZCJ_PRODUCT_D     │
 └─────────────────────────────────────┘
-🧩 RAP Objects
-Object	Type	Purpose
-ZCJ_PRODUCT	Database Table	Stores active product data
-ZCJ_PRODUCT_D	Draft Table	Stores RAP draft data
-ZCJ_I_PRODUCT	Root CDS View Entity	Interface/root business object
-ZCJ_C_PRODUCT	Projection CDS View	Service-facing projection
-ZBP_CJ_I_PRODUCT	Behavior Implementation	Implements RAP business logic
-ZCJ_PRODUCT_SRV	Service Definition	Exposes the Product entity
-ZCJ_PRODUCT_UI	Service Binding	Publishes the OData V4 UI service
-Metadata Extension	UI Metadata	Defines Fiori Elements presentation
-📦 Product Data Model
+```
 
-The Product entity contains the following information:
+---
 
-Product Information
-Product ID
-Product Name
-Description
-Category
-Price
-Currency
-Stock
-Workflow Information
-Status
-Rejection Reason
-Submitted At
-Approved By
-Approved At
-Audit Information
-Created By
-Created At
-Last Changed At
-⚙️ RAP Behavior Implementation
-Standard Operations
+## 🧩 RAP Objects
 
-The managed RAP business object supports:
+| Object | Type | Purpose |
+|---|---|---|
+| `ZCJ_PRODUCT` | Database Table | Stores active product data |
+| `ZCJ_PRODUCT_D` | Draft Table | Stores RAP draft data |
+| `ZCJ_I_PRODUCT` | Root CDS View Entity | Interface/root business object |
+| `ZCJ_C_PRODUCT` | Projection CDS View | Service-facing projection |
+| `ZBP_CJ_I_PRODUCT` | Behavior Implementation | Implements RAP business logic |
+| `ZCJ_PRODUCT_SRV` | Service Definition | Exposes the Product entity |
+| `ZCJ_PRODUCT_UI` | Service Binding | Publishes the OData V4 UI service |
+| Metadata Extension | UI Metadata | Defines Fiori Elements presentation |
 
-Create
-Update
-Delete
-Managed Draft
+---
 
-The application uses managed draft to allow users to work with an editable version of a product before activating it.
+## 📦 Product Data Model
 
-Draft-related operations include:
+**Product Information**
+`Product ID` · `Product Name` · `Description` · `Category` · `Price` · `Currency` · `Stock`
 
-Edit
-Activate
-Discard
-Resume
-Prepare
+**Workflow Information**
+`Status` · `Rejection Reason` · `Submitted At` · `Approved By` · `Approved At`
 
-This allows users to modify product information without immediately changing the active business object.
+**Audit Information**
+`Created By` · `Created At` · `Last Changed At`
 
-🧠 Business Logic
-1. Creation Determination
+---
 
-The setCreationData determination runs during product creation.
+## ⚙️ Business Logic
 
-It automatically initializes:
+### 1. Creation Determination
+`setCreationData` runs during product creation and automatically sets `CreatedBy`, `CreatedAt`, and `Status = NEW`, using the ABAP runtime context for the creator and current timestamp.
 
-CreatedBy
-CreatedAt
-Status = NEW
+### 2. Price Validation
+`validateProduct` runs on save for create/update. Rejects `Price <= 0` with:
+> *Price must be greater than zero*
 
-The creator is obtained using the ABAP runtime context and the creation timestamp is generated at runtime.
+### 3. Submit for Approval
+`submitForApproval` is available for `NEW` and `REJECTED` products. Sets `Status = SUBMITTED` and `SubmittedAt = current timestamp`.
 
-2. Price Validation
+### 4. Approval
+`approve` is available only for `SUBMITTED` products. Sets `Status = APPROVED`, `ApprovedBy = current user`, `ApprovedAt = current timestamp`.
 
-The validateProduct validation runs during save for create/update operations.
+### 5. Rejection
+`reject` is available only for `SUBMITTED` products and requires a rejection reason:
+> *Rejection reason is required.*
 
-The application rejects invalid prices:
+Sets `Status = REJECTED` and retains the reason.
 
-Price <= 0
+### EML Usage
+The behavior implementation uses **Entity Manipulation Language (EML)** — `READ ENTITIES` and `MODIFY ENTITIES` — for transactional access to the RAP business object.
 
-with the message:
+---
 
-Price must be greater than zero
+## 🎛️ Instance Feature Control
 
-This prevents invalid product information from being saved.
+Available actions are dynamically controlled based on the current product status:
 
-3. Submit for Approval
+```text
+NEW        → Submit for Approval enabled
+SUBMITTED  → Approve enabled, Reject enabled
+REJECTED   → Submit for Approval enabled
+APPROVED   → No workflow action enabled
+```
 
-The submitForApproval action can be executed when the product is:
+This prevents users from executing workflow operations that aren't valid for the current business state.
 
-NEW
-REJECTED
+---
 
-The action updates:
+## 🖥️ Fiori Elements UI
 
-Status      = SUBMITTED
-SubmittedAt = current timestamp
-4. Approval
+Exposed via OData V4 and consumed with SAP Fiori Elements.
 
-The approve action is available only for:
+**List Report** — product catalog view with Product ID, Name, Category, Price, Currency, Stock, and Status.
 
-Status = SUBMITTED
+**Object Page** — detailed product information and available workflow actions.
 
-On successful approval:
+UI metadata is maintained through a CDS metadata extension.
 
-Status     = APPROVED
-ApprovedBy = current user
-ApprovedAt = current timestamp
-5. Rejection
+---
 
-The reject action is available only for:
+## 📷 Screenshots
 
-Status = SUBMITTED
+| | |
+|---|---|
+| **Service Binding** | ![Service Binding](screenshots/01-service-binding.png) |
+| **Product List** | ![Product List](screenshots/02-product-list.png) |
+| **Product Statuses** | ![Product Statuses](screenshots/04-product-list-statuses.png) |
+| **Price Validation** | ![Price Validation](screenshots/03-price-validation.png) |
+| **Draft / Edit** | ![Draft Edit](screenshots/05-draft-edit.png) |
+| **Submitted Product** | <img width="945" alt="Submitted Product" src="https://github.com/user-attachments/assets/b82fcf8f-7635-4b55-be1c-41e6aa9a959c" /> |
+| **Rejection Validation** | ![Rejection Validation](screenshots/07-rejection-validation.png) |
+| **Rejected Product** | <img width="932" alt="Rejected Product" src="https://github.com/user-attachments/assets/dbe0fce1-f029-4e63-b16e-2195b34175b0" /> |
+| **Product Object Page** | ![Product Object Page](screenshots/10-product-object-page.png) |
 
-A rejection requires a rejection reason.
+---
 
-If no reason is supplied, the application displays:
+## 🚀 How to Explore This Project
 
-Rejection reason is required.
+This is an ABAP-only repository (no local runtime) — the source is meant to be imported into an SAP system via **Eclipse / ABAP Development Tools (ADT)**.
 
-After successful rejection:
+1. Clone the repo.
+2. In ADT, create the objects in this order to respect dependencies: `database/` → `cds/` → `behavior/` → `service/` → `metadata/`.
+3. Activate the service binding `ZCJ_PRODUCT_UI` and open it in the Fiori Elements preview.
+4. Walk through the workflow: create a product → submit → approve/reject.
 
-Status = REJECTED
+*(Screenshots above show the expected result at each stage if you just want to review the outcome without deploying.)*
 
-The rejection reason is retained.
+---
 
-🎛️ Instance Feature Control
+## 🗂️ Repository Structure
 
-The application uses RAP instance feature control to dynamically control the availability of workflow actions.
-
-The implementation determines the available actions based on the current product status.
-
-For example:
-
-NEW
- └── Submit for Approval enabled
-
-SUBMITTED
- ├── Approve enabled
- └── Reject enabled
-
-REJECTED
- └── Submit for Approval enabled
-
-APPROVED
- └── No workflow action enabled
-
-This prevents users from executing workflow operations that are not valid for the current business state.
-
-🔗 EML Usage
-
-The behavior implementation uses Entity Manipulation Language (EML) for transactional access to the RAP business object.
-
-Examples used in the project include:
-
-READ ENTITIES
-
-and:
-
-MODIFY ENTITIES
-
-These are used for reading and modifying RAP entities within the behavior implementation while respecting the RAP transactional model.
-
-🖥️ Fiori Elements UI
-
-The application is exposed through an OData V4 UI service and consumed using SAP Fiori Elements.
-
-The UI provides:
-
-List Report
-
-The List Report displays the product catalog with fields such as:
-
-Product ID
-Product Name
-Category
-Price
-Currency
-Stock
-Status
-Object Page
-
-The Object Page provides detailed product information and workflow actions.
-
-The UI metadata is maintained through a CDS metadata extension.
-
-## Screenshots
-
-### Service Binding
-
-![Service Binding](screenshots/01-service-binding.png)
-
-### Product List
-
-![Product List](screenshots/02-product-list.png)
-
-### Product Statuses
-
-![Product Statuses](screenshots/04-product-list-statuses.png)
-
-### Price Validation
-
-![Price Validation](screenshots/03-price-validation.png)
-
-### Draft / Edit
-
-![Draft Edit](screenshots/05-draft-edit.png)
-
-### Submitted Product
-<img width="945" height="295" alt="09-submitted-product" src="https://github.com/user-attachments/assets/b82fcf8f-7635-4b55-be1c-41e6aa9a959c" />
-
-### Rejection Validation
-
-![Rejection Validation](screenshots/07-rejection-validation.png)
-
-### Rejected Product
-
-<img width="932" height="185" alt="06-product-rejected" src="https://github.com/user-attachments/assets/dbe0fce1-f029-4e63-b16e-2195b34175b0" />
-
-### Product Object Page
-
-![Product Object Page](screenshots/10-product-object-page.png)
-
-## Technologies
-
-- SAP ABAP
-- ABAP RESTful Application Programming Model (RAP)
-- CDS
-- ABAP Behavior Definition
-- ABAP Behavior Implementation
-- OData V4
-- SAP Fiori Elements
-- Eclipse / ABAP Development Tools (ADT)
-
-🗂️ Repository Structure
+```text
 SAP-RAP-Product-Catalog/
 │
 ├── README.md
@@ -368,20 +280,9 @@ SAP-RAP-Product-Catalog/
 ├── .gitignore
 │
 ├── screenshots/
-│   ├── 01-service-binding.png
-│   ├── 02-product-list.png
-│   ├── 03-price-validation.png
-│   ├── 04-product-list-statuses.png
-│   ├── 05-draft-edit.png
-│   ├── 06-product-rejected.png
-│   ├── 07-rejection-validation.png
-│   ├── 08-product-list-after-workflow.png
-│   ├── 09-submitted-product.png
-│   ├── 10-product-object-page.png
-│   └── 11-product-edit-draft.png
+│   └── 01–11 ...
 │
 └── src/
-    │
     ├── database/
     │   ├── zcj_product.ddl
     │   └── zcj_product_d.ddl
@@ -400,102 +301,38 @@ SAP-RAP-Product-Catalog/
     │
     └── service/
         └── zcj_product_srv.srvd
-🛠️ Technologies
-Technology	Usage
-SAP ABAP	Application and behavior implementation
-ABAP RAP	Transactional business object
-CDS	Data modeling and service projection
-OData V4	Service exposure
-Fiori Elements	User interface
-ADT / Eclipse	Development environment
-📚 RAP Concepts Demonstrated
+```
 
-This project provides practical implementation of:
+---
 
-Root CDS View Entities
-Projection CDS View
-Managed RAP Business Object
-Managed Draft
-Behavior Definition
-Behavior Projection
-Behavior Implementation
-Determination
-Validation
-Instance Feature Control
-Custom Actions
-Entity Manipulation Language (EML)
-Transactional Query Provider Contract
-OData V4 Service Definition
-OData V4 UI Service Binding
-Fiori Elements
-CDS Metadata Extensions
-ETag / Last-Changed Handling
-🔐 Authorization
+## 🔐 Authorization
 
-The current implementation intentionally uses simple authorization settings suitable for the development/trial implementation.
+Current implementation uses simple authorization settings suitable for a development/trial system. Role-based authorization has not been implemented yet. A production-oriented version could introduce separate **requester** and **approver** roles with appropriate authorization checks.
 
-Role-based authorization has not been implemented yet.
+---
 
-A production-oriented version could introduce separate requester and approver roles with appropriate authorization checks.
+## 🔮 Future Enhancements
 
-🚀 Future Enhancements
+- Role-based authorization (requester / approver roles)
+- Approval and email notifications
+- Additional product validations
+- Category and currency value helps
+- Search and filtering enhancements
+- Product analytics and reporting
+- Additional workflow states
+- SAP BTP deployment documentation
 
-Possible extensions include:
+---
 
-Role-based authorization
-Separate requester and approver roles
-Approval notifications
-Email notifications
-Additional product validations
-Category and currency value helps
-Search and filtering enhancements
-Product analytics and reporting
-Additional workflow states
-SAP BTP deployment and configuration documentation
-🎯 Project Outcome
+## 🎯 Project Status
 
-The application demonstrates a complete transactional product lifecycle using SAP RAP:
+**Completed — Functional Prototype**
 
-Create
-   ↓
-Draft
-   ↓
-Validate
-   ↓
-Submit for Approval
-   ↓
-┌───────────────┐
-│               │
-Approve       Reject
-│               │
-▼               ▼
-APPROVED      REJECTED
-                │
-                │ Submit Again
-                ▼
-             SUBMITTED
+Tested end-to-end: product creation → draft editing → price validation → submission → approval → rejection → rejection validation → status-based action control → Fiori Elements UI interaction.
 
-The project demonstrates how RAP behavior, CDS data modeling, EML, draft handling, validations, determinations, instance feature control, OData V4, and Fiori Elements can be combined to build a transactional SAP application.
+---
 
-📌 Project Status
+## 👨‍💻 Author
 
-Completed — Functional Prototype
-
-The current implementation has been tested through the complete product workflow, including:
-
-Product creation
-Draft editing
-Price validation
-Submission
-Approval
-Rejection
-Rejection validation
-Status-based action control
-Fiori Elements UI interaction
-👨‍💻 Repository
-
-GitHub:
-https://github.com/kamalsrikanta/SAP-RAP-Product-Catalog
-
-
-
+**Kamal Srikanta**
+GitHub: [kamalsrikanta](https://github.com/kamalsrikanta) · Repo: [SAP-RAP-Product-Catalog](https://github.com/kamalsrikanta/SAP-RAP-Product-Catalog)
