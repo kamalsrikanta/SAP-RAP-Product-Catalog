@@ -227,8 +227,7 @@ while retaining the rejection reason.
 ![Draft Edit](screenshots/05-draft-edit.png)
 
 ### Submitted Product
-
-![Submitted Product](screenshots/06-product-submitted.png)
+<img width="945" height="295" alt="09-submitted-product" src="https://github.com/user-attachments/assets/b82fcf8f-7635-4b55-be1c-41e6aa9a959c" />
 
 ### Rejection Validation
 
@@ -236,7 +235,7 @@ while retaining the rejection reason.
 
 ### Rejected Product
 
-![Rejected Product](screenshots/09-rejected-product.png)
+<img width="932" height="185" alt="06-product-rejected" src="https://github.com/user-attachments/assets/dbe0fce1-f029-4e63-b16e-2195b34175b0" />
 
 ### Product Object Page
 
